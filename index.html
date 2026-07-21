@@ -375,10 +375,17 @@
   };
 
   // ---------- storage ----------
+  // Uses window.storage when running inside a Claude artifact preview,
+  // and falls back to localStorage for a normally hosted page (e.g. GitHub Pages).
   async function loadCollection(){
     try{
-      const res = await window.storage.get(STORAGE_KEY, false);
-      items = res && res.value ? JSON.parse(res.value) : [];
+      if(window.storage){
+        const res = await window.storage.get(STORAGE_KEY, false);
+        items = res && res.value ? JSON.parse(res.value) : [];
+      }else{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        items = raw ? JSON.parse(raw) : [];
+      }
     }catch(e){
       items = [];
     }
@@ -386,7 +393,11 @@
   }
   async function persist(){
     try{
-      await window.storage.set(STORAGE_KEY, JSON.stringify(items), false);
+      if(window.storage){
+        await window.storage.set(STORAGE_KEY, JSON.stringify(items), false);
+      }else{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      }
     }catch(e){
       toast('Erreur de sauvegarde — réessayez.');
     }
