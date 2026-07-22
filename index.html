@@ -205,6 +205,11 @@
   .preview-box .cover{ width:64px; height:88px; flex-shrink:0; border-radius:2px; overflow:hidden; background:var(--paper); display:flex; align-items:center; justify-content:center;}
   .preview-box .cover img{ width:100%; height:100%; object-fit:cover; }
   .lookup-msg{ font-size:13px; color:#5c564e; text-align:center; padding:14px 0; }
+  .dup-warning{
+    background:rgba(161,61,43,.12); border:1px solid var(--rust); color:var(--rust);
+    font-size:12.5px; line-height:1.45; padding:10px 12px; border-radius:4px;
+    margin-bottom:14px; font-family:'IBM Plex Mono',monospace;
+  }
   .spinner{
     width:22px; height:22px; border:2px solid #cbc0a4; border-top-color:var(--brass);
     border-radius:50%; margin:0 auto 10px; animation:spin .8s linear infinite;
@@ -395,6 +400,10 @@
       items = (data.record && Array.isArray(data.record.items)) ? data.record.items : [];
       loaded = true;
     }catch(e){
+      // IMPORTANT : on ne touche plus à "items" ici. Auparavant ce catch faisait
+      // "items = []" en cas d'échec, et le PREMIER ajout suivant écrasait alors
+      // tout le contenu distant avec ce tableau vide + le nouvel article — c'était
+      // la cause du bug "un nouvel enregistrement efface le précédent".
       console.error('Erreur de chargement de la collection :', e);
       loaded = false;
       toast('Chargement impossible (' + e.message + '). Rien ne sera sauvegardé tant que ce n\'est pas résolu.');
@@ -403,6 +412,8 @@
   }
   async function persist(){
     if(!loaded){
+      // Filet de sécurité : si le chargement initial a échoué, on refuse
+      // d'écraser la collection distante avec un état local incomplet.
       toast('Sauvegarde annulée : la collection distante n\'a pas pu être chargée. Rechargez la page.');
       return;
     }
@@ -459,6 +470,26 @@
 
   function escapeHtml(s){
     return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- duplicate detection ----------
+  // Matches on code (barcode/ISBN) first since it's the most reliable
+  // identifier; falls back to title+creator (same type) if no code match,
+  // to also catch manual entries or lookups that returned no code.
+  function findDuplicate(candidate, excludeId){
+    const cCode = (candidate.code||'').trim().toLowerCase();
+    const cTitle = (candidate.title||'').trim().toLowerCase();
+    const cCreator = (candidate.creator||'').trim().toLowerCase();
+    return items.find(it=>{
+      if(excludeId && it.id===excludeId) return false;
+      if(it.type !== candidate.type) return false;
+      const itCode = (it.code||'').trim().toLowerCase();
+      if(cCode && itCode && cCode === itCode) return true;
+      const itTitle = (it.title||'').trim().toLowerCase();
+      const itCreator = (it.creator||'').trim().toLowerCase();
+      if(cTitle && itTitle === cTitle && cCreator === itCreator) return true;
+      return false;
+    });
   }
 
   // ---------- tabs & search ----------
@@ -662,7 +693,12 @@
 
   function showPreview(data, found, allowManualEdit){
     const area = $('#lookupArea');
+    const existingDup = findDuplicate(data);
+    const dupHtml = existingDup
+      ? `<div class="dup-warning" id="dupWarning">⚠️ Déjà dans le catalogue : « ${escapeHtml(existingDup.title)} »${existingDup.creator ? ' — '+escapeHtml(existingDup.creator) : ''}. Modifiez le titre/l'auteur/le code ci-dessous s'il s'agit bien d'un article différent.</div>`
+      : '';
     area.innerHTML = `
+      ${dupHtml}
       <div class="preview-box">
         <div class="cover" id="pvCover">${data.cover ? `<img src="${data.cover}" onerror="this.parentElement.innerHTML=''">` : ''}</div>
         <div style="flex:1;">
@@ -677,6 +713,20 @@
       <button class="row-btn primary" id="confirmAddBtn">Ajouter à la collection</button>
       <button class="row-btn ghost" id="cancelPreviewBtn">Annuler</button>
     `;
+    // Re-check live as the person edits fields, in case they change the
+    // code/title/creator to something that no longer collides (or now does).
+    ['pvTitle','pvCreator','pvCode'].forEach(id=>{
+      $('#'+id).addEventListener('input', ()=>{
+        const candidate = { type:data.type, title:$('#pvTitle').value, creator:$('#pvCreator').value, code:$('#pvCode').value };
+        const dup = findDuplicate(candidate);
+        const existingWarning = document.getElementById('dupWarning');
+        if(dup && !existingWarning){
+          area.insertAdjacentHTML('afterbegin', `<div class="dup-warning" id="dupWarning">⚠️ Déjà dans le catalogue : « ${escapeHtml(dup.title)} »${dup.creator ? ' — '+escapeHtml(dup.creator) : ''}.</div>`);
+        }else if(!dup && existingWarning){
+          existingWarning.remove();
+        }
+      });
+    });
     $('#confirmAddBtn').addEventListener('click', (ev)=>{
       const finalItem = {
         id: 'it_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
@@ -688,6 +738,11 @@
         cover: data.cover || null,
         addedAt: Date.now()
       };
+      const dup = findDuplicate(finalItem);
+      if(dup){
+        toast('Doublon détecté — rien n\'a été enregistré.');
+        return; // hard stop: never save a confirmed duplicate
+      }
       items.push(finalItem);
       persist();
       render();
