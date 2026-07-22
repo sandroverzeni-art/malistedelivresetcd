@@ -43,4 +43,742 @@
   /* ---------- Header ---------- */
   header{
     padding:28px 20px 18px;
-    padding-top:calc(28px +
+    padding-top:calc(28px + env(safe-area-inset-top));
+    text-align:center;
+    position:relative;
+    border-bottom:1px solid rgba(237,230,214,.12);
+    background:
+      radial-gradient(ellipse at top, rgba(184,135,61,.10), transparent 60%),
+      var(--ink);
+  }
+  header .eyebrow{
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--brass-light); margin-bottom:6px;
+  }
+  header h1{
+    margin:0; font-size:clamp(28px,6vw,40px); font-weight:600;
+    color:var(--cream-text);
+  }
+  header p.sub{
+    margin:6px 0 0; color:var(--cream-text-dim); font-size:14px; font-style:italic;
+  }
+  #infoBtn{
+    position:absolute; top:calc(18px + env(safe-area-inset-top)); right:16px;
+    width:30px; height:30px; border-radius:50%; border:1px solid rgba(237,230,214,.3);
+    background:transparent; color:var(--cream-text-dim); cursor:pointer; font-family:'Fraunces',serif;
+    font-style:italic; font-size:15px;
+  }
+  #infoBtn:hover{ color:var(--brass-light); border-color:var(--brass-light); }
+
+  .insecure-banner{
+    background:var(--rust); color:var(--cream-text); font-size:12.5px;
+    padding:9px 16px; text-align:center; display:none;
+  }
+  .insecure-banner.show{ display:block; }
+
+  /* ---------- Tabs ---------- */
+  nav.drawer-tabs{
+    display:flex; justify-content:center; gap:0; margin:22px auto 0; max-width:520px;
+    padding:0 16px;
+  }
+  .drawer-tab{
+    flex:1; text-align:center; padding:10px 6px; cursor:pointer;
+    color:var(--cream-text-dim); font-family:'IBM Plex Mono',monospace;
+    font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    border-bottom:2px solid rgba(237,230,214,.15);
+    transition:color .15s, border-color .15s;
+    user-select:none;
+  }
+  .drawer-tab.active{ color:var(--brass-light); border-color:var(--brass-light); }
+  .drawer-tab:hover{ color:var(--cream-text); }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    max-width:900px; margin:20px auto 0; padding:0 16px;
+    display:flex; gap:10px; align-items:center;
+  }
+  .search-wrap{ position:relative; flex:1; }
+  .search-wrap input{
+    width:100%; padding:10px 14px 10px 34px; border-radius:20px;
+    border:1px solid rgba(237,230,214,.2); background:var(--ink-2); color:var(--cream-text);
+    font-family:'Source Serif 4',serif; font-size:14px; outline:none;
+  }
+  .search-wrap input:focus{ border-color:var(--brass-light); }
+  .search-wrap svg{ position:absolute; left:11px; top:50%; transform:translateY(-50%); opacity:.5; }
+  .add-btn{
+    display:flex; align-items:center; gap:6px;
+    background:var(--brass); color:var(--ink); border:none; border-radius:20px;
+    padding:10px 16px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:600;
+    letter-spacing:.05em; cursor:pointer; white-space:nowrap;
+  }
+  .add-btn:hover{ background:var(--brass-light); }
+
+  /* ---------- Grid ---------- */
+  main{ max-width:900px; margin:0 auto; padding:22px 16px 60px; }
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:16px;
+  }
+  .card{
+    background:var(--paper); color:var(--ink-text); border-radius:var(--radius);
+    box-shadow:var(--shadow); position:relative; padding:14px 12px 12px 16px;
+    cursor:pointer; min-height:190px; display:flex; flex-direction:column;
+    transform:rotate(var(--tilt,0deg));
+  }
+  .card::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:6px;
+    background:var(--spine, var(--brass)); border-radius:var(--radius) 0 0 var(--radius);
+  }
+  .card::after{
+    content:""; position:absolute; top:10px; left:16px; width:16px; height:16px;
+    border-radius:50%; background:var(--ink); box-shadow:inset 0 1px 2px rgba(0,0,0,.5);
+    opacity:.85;
+  }
+  .card .cover{
+    height:96px; margin:14px 0 8px; display:flex; align-items:center; justify-content:center;
+    background:var(--paper-2); border-radius:2px; overflow:hidden;
+  }
+  .card .cover img{ width:100%; height:100%; object-fit:cover; }
+  .card .cover svg{ opacity:.35; }
+  .card h3{
+    margin:0 0 2px; font-size:14.5px; line-height:1.25; font-weight:600;
+  }
+  .card .creator{ font-size:12px; color:#5c564e; font-style:italic; margin-bottom:6px;}
+  .card .tag{
+    margin-top:auto; font-family:'IBM Plex Mono',monospace; font-size:9.5px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--spine,var(--brass));
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .empty{
+    text-align:center; padding:60px 20px; color:var(--cream-text-dim);
+  }
+  .empty h2{ color:var(--cream-text); font-size:22px; margin-bottom:8px; }
+  .empty p{ font-size:14px; margin-bottom:18px; }
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(10,13,18,.72); display:none;
+    align-items:flex-end; justify-content:center; z-index:50; backdrop-filter:blur(2px);
+  }
+  .overlay.show{ display:flex; }
+  @media(min-width:640px){ .overlay{ align-items:center; } }
+  .modal{
+    background:var(--paper); color:var(--ink-text); width:100%; max-width:480px;
+    border-radius:var(--radius) var(--radius) 0 0; padding:22px 20px calc(22px + env(safe-area-inset-bottom));
+    max-height:88vh; overflow-y:auto; position:relative;
+  }
+  @media(min-width:640px){ .modal{ border-radius:var(--radius); max-height:80vh; } }
+  .modal h2{ margin:0 0 4px; font-size:21px; }
+  .modal .close{
+    position:absolute; top:14px; right:16px; background:none; border:none; cursor:pointer;
+    color:#7a746a; font-size:20px; line-height:1;
+  }
+  .segmented{
+    display:flex; border:1px solid #cbc0a4; border-radius:20px; overflow:hidden; margin:14px 0;
+  }
+  .segmented button{
+    flex:1; padding:8px 6px; border:none; background:transparent; cursor:pointer;
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase;
+    color:#5c564e;
+  }
+  .segmented button.active{ background:var(--ink); color:var(--cream-text); }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#7a746a; margin-bottom:4px; font-family:'IBM Plex Mono',monospace;}
+  .field input{
+    width:100%; padding:9px 11px; border:1px solid #cbc0a4; border-radius:2px;
+    background:#fbf9f3; font-family:'Source Serif 4',serif; font-size:14.5px; color:var(--ink-text);
+  }
+  .field input:focus{ outline:none; border-color:var(--brass); }
+  .row-btn{
+    width:100%; padding:11px; border-radius:20px; border:none; cursor:pointer;
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.05em; text-transform:uppercase;
+    margin-top:4px;
+  }
+  .row-btn.primary{ background:var(--brass); color:var(--ink); font-weight:600; }
+  .row-btn.primary:hover{ background:var(--brass-light); }
+  .row-btn.ghost{ background:transparent; color:#5c564e; border:1px solid #cbc0a4; margin-top:8px; }
+  #reader{ width:100%; border-radius:4px; overflow:hidden; background:#000; min-height:220px; }
+  .scan-status{ text-align:center; font-size:12.5px; color:#7a746a; margin-top:8px; font-family:'IBM Plex Mono',monospace;}
+  .preview-box{
+    display:flex; gap:14px; align-items:flex-start; background:var(--paper-2);
+    border-radius:4px; padding:12px; margin-bottom:14px;
+  }
+  .preview-box .cover{ width:64px; height:88px; flex-shrink:0; border-radius:2px; overflow:hidden; background:var(--paper); display:flex; align-items:center; justify-content:center;}
+  .preview-box .cover img{ width:100%; height:100%; object-fit:cover; }
+  .lookup-msg{ font-size:13px; color:#5c564e; text-align:center; padding:14px 0; }
+  .spinner{
+    width:22px; height:22px; border:2px solid #cbc0a4; border-top-color:var(--brass);
+    border-radius:50%; margin:0 auto 10px; animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* stamp animation */
+  .stamp{
+    position:fixed; z-index:80; pointer-events:none; width:110px; height:110px;
+    border:3px solid var(--rust); border-radius:50%; color:var(--rust);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.05em; transform:translate(-50%,-50%) scale(2.4) rotate(-18deg); opacity:0;
+    animation:stampIn .55s cubic-bezier(.2,.9,.3,1.2) forwards;
+  }
+  @keyframes stampIn{
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(2.6) rotate(-18deg); }
+    55%{ opacity:1; transform:translate(-50%,-50%) scale(.92) rotate(-14deg); }
+    75%{ transform:translate(-50%,-50%) scale(1.05) rotate(-15deg); }
+    100%{ opacity:1; transform:translate(-50%,-50%) scale(1) rotate(-15deg); }
+  }
+  .stamp span{ display:block; }
+
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background:var(--ink-2); color:var(--cream-text); padding:10px 18px; border-radius:20px;
+    font-size:13px; box-shadow:var(--shadow); z-index:90; opacity:0; transition:opacity .25s;
+    border:1px solid rgba(237,230,214,.15);
+  }
+  .toast.show{ opacity:1; }
+
+  /* detail modal extras */
+  .detail-actions{ display:flex; gap:10px; margin-top:6px; }
+  .detail-actions button{ flex:1; }
+  .row-btn.danger{ background:transparent; color:var(--rust); border:1px solid var(--rust); }
+</style>
+</head>
+<body>
+
+<div class="insecure-banner" id="insecureBanner">
+  Connexion non sécurisée détectée — le scan caméra peut être bloqué par le navigateur. La recherche manuelle reste disponible. Hébergez ce fichier en HTTPS pour activer la caméra partout.
+</div>
+
+<header>
+  <button id="infoBtn" title="À propos">i</button>
+  <div class="eyebrow">Fichier personnel</div>
+  <h1>Catalogue</h1>
+  <p class="sub">Vos livres &amp; disques, un code-barres à la fois</p>
+</header>
+
+<nav class="drawer-tabs">
+  <div class="drawer-tab active" data-tab="all">Tout</div>
+  <div class="drawer-tab" data-tab="book">Livres</div>
+  <div class="drawer-tab" data-tab="cd">Musique</div>
+</nav>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="searchInput" type="text" placeholder="Rechercher un titre, un auteur…">
+  </div>
+  <button class="add-btn" id="openAddBtn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Ajouter
+  </button>
+</div>
+
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none;">
+    <h2>Le tiroir est vide</h2>
+    <p>Scannez un code-barres ou ajoutez un titre à la main pour commencer.</p>
+    <button class="add-btn" id="emptyAddBtn" style="margin:0 auto;">Ajouter un premier article</button>
+  </div>
+</main>
+
+<!-- ADD MODAL -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <button class="close" id="closeAdd">✕</button>
+    <h2>Nouvel article</h2>
+
+    <div class="segmented" id="typeSeg">
+      <button class="active" data-type="book">Livre</button>
+      <button data-type="cd">Disque</button>
+    </div>
+    <div class="segmented" id="methodSeg">
+      <button class="active" data-method="scan">Scanner</button>
+      <button data-method="manual">Saisie manuelle</button>
+    </div>
+
+    <div id="scanPane">
+      <div id="reader"></div>
+      <div class="scan-status" id="scanStatus">Autorisez la caméra, puis visez le code-barres.</div>
+    </div>
+
+    <div id="manualPane" style="display:none;">
+      <div class="field">
+        <label>Titre, auteur/artiste, ou code-barres</label>
+        <input id="manualQuery" type="text" placeholder="Ex. 9782070368228 ou « Le Petit Prince »">
+      </div>
+      <button class="row-btn primary" id="manualSearchBtn">Rechercher</button>
+    </div>
+
+    <div id="lookupArea"></div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal">
+    <button class="close" id="closeDetail">✕</button>
+    <h2 id="detailTitle" style="margin-top:6px;"></h2>
+    <p id="detailCreator" style="font-style:italic;color:#5c564e;margin:2px 0 14px;"></p>
+    <div class="field"><label>Titre</label><input id="editTitle"></div>
+    <div class="field"><label>Auteur / Artiste</label><input id="editCreator"></div>
+    <div class="field"><label>Année</label><input id="editYear"></div>
+    <div class="field"><label>Code</label><input id="editCode"></div>
+    <div class="detail-actions">
+      <button class="row-btn primary" id="saveEditBtn">Enregistrer</button>
+      <button class="row-btn danger" id="deleteBtn">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="overlay" id="infoOverlay">
+  <div class="modal">
+    <button class="close" id="closeInfo">✕</button>
+    <h2>Sur votre iPhone</h2>
+    <p style="font-size:14px; line-height:1.6;">
+      Ce fichier fonctionne comme une application web. Pour le scan caméra, Safari exige une page servie en HTTPS
+      (le simple fichier ouvert en local, ou un aperçu intégré, peut bloquer la caméra — la recherche manuelle
+      fonctionne toujours dans ce cas).
+    </p>
+    <p style="font-size:14px; line-height:1.6;">
+      Une fois hébergé (GitHub Pages, Netlify, etc.), ouvrez la page dans Safari puis :
+      <b>Partager</b> → <b>Sur l'écran d'accueil</b>. L'icône apparaît alors comme une vraie application,
+      en plein écran, sans barre d'adresse.
+    </p>
+    <p style="font-size:13px; color:#7a746a;">Vos données sont stockées sur cet appareil, liées à votre compte Claude.</p>
+    <button class="row-btn ghost" id="closeInfo2">Fermer</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  const STORAGE_KEY = 'catalog-items';
+  let items = [];
+  let currentTab = 'all';
+  let addType = 'book';
+  let addMethod = 'scan';
+  let html5QrCode = null;
+  let scannerRunning = false;
+  let pendingResult = null; // holds looked-up data awaiting save
+  let editingId = null;
+  let loaded = false; // becomes true only after a successful initial load from the server
+
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+  const ICONS = {
+    book: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5"/><path d="M4 4.5v17"/><path d="M20 19H6.5A2.5 2.5 0 0 0 4 21.5"/></svg>',
+    cd: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg>'
+  };
+
+  // ---------- storage (JSONBin.io — syncs across all your devices) ----------
+  // 1) Create a free account at https://jsonbin.io
+  // 2) Create a bin with content: {"items": []}
+  // 3) Paste your Bin ID and X-Master-Key below
+  const BIN_ID = '6a5fd954f5f4af5e29ae28bc';
+  const API_KEY = '$2a$10$6pwhlZWpSYZz/kGweRLFSe6w8l0ubCbtBGug8dW3LnCgufCqwCJGq';
+  const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+  async function loadCollection(){
+    try{
+      const res = await fetch(API_URL + '/latest', {
+        headers: { 'X-Master-Key': API_KEY }
+      });
+      if(!res.ok){
+        throw new Error('HTTP ' + res.status + ' — vérifiez BIN_ID / API_KEY');
+      }
+      const data = await res.json();
+      items = (data.record && Array.isArray(data.record.items)) ? data.record.items : [];
+      loaded = true;
+    }catch(e){
+      console.error('Erreur de chargement de la collection :', e);
+      loaded = false;
+      toast('Chargement impossible (' + e.message + '). Rien ne sera sauvegardé tant que ce n\'est pas résolu.');
+    }
+    render();
+  }
+  async function persist(){
+    if(!loaded){
+      toast('Sauvegarde annulée : la collection distante n\'a pas pu être chargée. Rechargez la page.');
+      return;
+    }
+    try{
+      const res = await fetch(API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+        body: JSON.stringify({ items })
+      });
+      if(!res.ok){
+        throw new Error('HTTP ' + res.status);
+      }
+    }catch(e){
+      console.error('Erreur de sauvegarde :', e);
+      toast('Erreur de sauvegarde — réessayez.');
+    }
+  }
+
+  function toast(msg){
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+
+  // ---------- rendering ----------
+  function render(){
+    const q = $('#searchInput').value.trim().toLowerCase();
+    let list = items.filter(it => currentTab==='all' || it.type===currentTab);
+    if(q){
+      list = list.filter(it => (it.title+' '+it.creator).toLowerCase().includes(q));
+    }
+    list = list.slice().sort((a,b)=> (b.addedAt||0)-(a.addedAt||0));
+
+    const grid = $('#grid');
+    grid.innerHTML = '';
+    $('#emptyState').style.display = list.length ? 'none' : 'block';
+
+    list.forEach((it, idx) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.setProperty('--tilt', ((idx % 5) - 2) * 0.35 + 'deg');
+      card.style.setProperty('--spine', it.type==='cd' ? 'var(--teal)' : 'var(--brass)');
+      card.innerHTML = `
+        <div class="cover">${it.cover ? `<img src="${it.cover}" alt="" onerror="this.parentElement.innerHTML=ICONSPLACEHOLDER">` : ICONSPLACEHOLDER}</div>
+        <h3>${escapeHtml(it.title||'Sans titre')}</h3>
+        <div class="creator">${escapeHtml(it.creator||'—')}</div>
+        <div class="tag"><span>${it.type==='cd'?'Disque':'Livre'}</span><span>${it.year||''}</span></div>
+      `.replace(/ICONSPLACEHOLDER/g, `'${ICONS[it.type].replace(/'/g,"\\'")}'`);
+      card.addEventListener('click', ()=> openDetail(it.id));
+      grid.appendChild(card);
+    });
+  }
+
+  function escapeHtml(s){
+    return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- tabs & search ----------
+  $$('.drawer-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      $$('.drawer-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      currentTab = tab.dataset.tab;
+      render();
+    });
+  });
+  $('#searchInput').addEventListener('input', render);
+
+  // ---------- add modal open/close ----------
+  function openAddModal(presetType){
+    addType = presetType || (currentTab!=='all' ? currentTab : 'book');
+    $$('#typeSeg button').forEach(b=> b.classList.toggle('active', b.dataset.type===addType));
+    addMethod = 'scan';
+    $$('#methodSeg button').forEach(b=> b.classList.toggle('active', b.dataset.method==='scan'));
+    $('#scanPane').style.display = 'block';
+    $('#manualPane').style.display = 'none';
+    $('#lookupArea').innerHTML = '';
+    pendingResult = null;
+    $('#manualQuery').value = '';
+    $('#addOverlay').classList.add('show');
+    maybeStartScanner();
+  }
+  function closeAddModal(){
+    $('#addOverlay').classList.remove('show');
+    stopScanner();
+  }
+  $('#openAddBtn').addEventListener('click', ()=>openAddModal());
+  $('#emptyAddBtn').addEventListener('click', ()=>openAddModal());
+  $('#closeAdd').addEventListener('click', closeAddModal);
+
+  $$('#typeSeg button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      $$('#typeSeg button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      addType = b.dataset.type;
+    });
+  });
+  $$('#methodSeg button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      $$('#methodSeg button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      addMethod = b.dataset.method;
+      $('#lookupArea').innerHTML = '';
+      pendingResult = null;
+      if(addMethod==='scan'){
+        $('#scanPane').style.display='block';
+        $('#manualPane').style.display='none';
+        maybeStartScanner();
+      }else{
+        $('#scanPane').style.display='none';
+        $('#manualPane').style.display='block';
+        stopScanner();
+      }
+    });
+  });
+
+  // ---------- scanner ----------
+  function maybeStartScanner(){
+    if(!window.isSecureContext){
+      $('#insecureBanner').classList.add('show');
+      $('#scanStatus').textContent = 'Caméra indisponible dans ce contexte. Utilisez la saisie manuelle, ou hébergez ce fichier en HTTPS.';
+      return;
+    }
+    if(typeof Html5Qrcode === 'undefined'){
+      $('#scanStatus').textContent = 'Bibliothèque de scan indisponible. Utilisez la saisie manuelle.';
+      return;
+    }
+    if(scannerRunning) return;
+    html5QrCode = new Html5Qrcode('reader');
+    const formats = [
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.CODE_128
+    ];
+    html5QrCode.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 260, height: 140 }, formatsToSupport: formats },
+      (decodedText)=>{ onScanSuccess(decodedText); },
+      ()=>{ /* per-frame miss, ignore */ }
+    ).then(()=>{
+      scannerRunning = true;
+      $('#scanStatus').textContent = 'Visez le code-barres du livre ou du disque.';
+    }).catch(err=>{
+      $('#scanStatus').textContent = 'Caméra inaccessible (permission refusée ou indisponible). Utilisez la saisie manuelle.';
+    });
+  }
+  function stopScanner(){
+    if(html5QrCode && scannerRunning){
+      html5QrCode.stop().then(()=>{ scannerRunning=false; }).catch(()=>{ scannerRunning=false; });
+    }
+  }
+  function onScanSuccess(code){
+    stopScanner();
+    $('#scanStatus').textContent = 'Code détecté : ' + code;
+    runLookup(addType, code);
+  }
+
+  $('#manualSearchBtn').addEventListener('click', ()=>{
+    const q = $('#manualQuery').value.trim();
+    if(!q) return;
+    runLookup(addType, q);
+  });
+
+  // ---------- lookups ----------
+  async function runLookup(type, query){
+    const area = $('#lookupArea');
+    area.innerHTML = `<div class="lookup-msg"><div class="spinner"></div>Recherche en cours…</div>`;
+    const clean = query.replace(/[\s-]/g,'');
+    const isNumeric = /^[0-9Xx]{6,14}$/.test(clean);
+    let result = null;
+    try{
+      if(type==='book'){
+        result = isNumeric ? await lookupBookByISBN(clean) : await lookupBookByTitle(query);
+      }else{
+        result = isNumeric ? await lookupCDByBarcode(clean) : await lookupCDByTitle(query);
+      }
+    }catch(e){
+      result = null;
+    }
+    if(result){
+      pendingResult = { type, title:result.title, creator:result.creator, year:result.year, code:result.code||query, cover:result.cover };
+      showPreview(pendingResult, true);
+    }else{
+      pendingResult = { type, title: isNumeric ? '' : query, creator:'', year:'', code: isNumeric?query:'', cover:null };
+      area.innerHTML = `<div class="lookup-msg">Aucun résultat trouvé automatiquement. Complétez les champs pour l'ajouter quand même.</div>`;
+      showPreview(pendingResult, false, true);
+    }
+  }
+
+  async function lookupBookByISBN(isbn){
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+    const data = await res.json();
+    if(data.totalItems>0){
+      const info = data.items[0].volumeInfo;
+      return {
+        title: info.title,
+        creator: (info.authors||[]).join(', '),
+        year: info.publishedDate ? info.publishedDate.slice(0,4) : '',
+        cover: info.imageLinks ? (info.imageLinks.thumbnail||info.imageLinks.smallThumbnail) : null,
+        code: isbn
+      };
+    }
+    return null;
+  }
+  async function lookupBookByTitle(title){
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`);
+    const data = await res.json();
+    if(data.totalItems>0){
+      const info = data.items[0].volumeInfo;
+      const ids = info.industryIdentifiers||[];
+      const isbn = (ids.find(i=>i.type==='ISBN_13')||ids[0]||{}).identifier || '';
+      return {
+        title: info.title,
+        creator:(info.authors||[]).join(', '),
+        year: info.publishedDate ? info.publishedDate.slice(0,4) : '',
+        cover: info.imageLinks ? (info.imageLinks.thumbnail||info.imageLinks.smallThumbnail) : null,
+        code: isbn
+      };
+    }
+    return null;
+  }
+  async function lookupCDByBarcode(barcode){
+    const res = await fetch(`https://musicbrainz.org/ws/2/release/?query=barcode:${barcode}&fmt=json&limit=1`);
+    const data = await res.json();
+    if(data.releases && data.releases.length){
+      const rel = data.releases[0];
+      const artist = (rel['artist-credit']||[]).map(a=>a.name).join(', ');
+      return {
+        title: rel.title,
+        creator: artist,
+        year: rel.date ? rel.date.slice(0,4) : '',
+        cover: `https://coverartarchive.org/release/${rel.id}/front-250`,
+        code: barcode
+      };
+    }
+    return null;
+  }
+  async function lookupCDByTitle(title){
+    const res = await fetch(`https://musicbrainz.org/ws/2/release/?query=release:${encodeURIComponent(title)}&fmt=json&limit=1`);
+    const data = await res.json();
+    if(data.releases && data.releases.length){
+      const rel = data.releases[0];
+      const artist = (rel['artist-credit']||[]).map(a=>a.name).join(', ');
+      return {
+        title: rel.title,
+        creator: artist,
+        year: rel.date ? rel.date.slice(0,4) : '',
+        cover: `https://coverartarchive.org/release/${rel.id}/front-250`,
+        code: rel.barcode || ''
+      };
+    }
+    return null;
+  }
+
+  function showPreview(data, found, allowManualEdit){
+    const area = $('#lookupArea');
+    area.innerHTML = `
+      <div class="preview-box">
+        <div class="cover" id="pvCover">${data.cover ? `<img src="${data.cover}" onerror="this.parentElement.innerHTML=''">` : ''}</div>
+        <div style="flex:1;">
+          <div class="field" style="margin-bottom:8px;"><label>Titre</label><input id="pvTitle" value="${escapeHtml(data.title)}"></div>
+          <div class="field" style="margin-bottom:0;"><label>${data.type==='cd'?'Artiste':'Auteur'}</label><input id="pvCreator" value="${escapeHtml(data.creator)}"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="field" style="flex:1;"><label>Année</label><input id="pvYear" value="${escapeHtml(data.year)}"></div>
+        <div class="field" style="flex:1;"><label>Code</label><input id="pvCode" value="${escapeHtml(data.code)}"></div>
+      </div>
+      <button class="row-btn primary" id="confirmAddBtn">Ajouter à la collection</button>
+      <button class="row-btn ghost" id="cancelPreviewBtn">Annuler</button>
+    `;
+    $('#confirmAddBtn').addEventListener('click', (ev)=>{
+      const finalItem = {
+        id: 'it_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+        type: data.type,
+        title: $('#pvTitle').value.trim() || 'Sans titre',
+        creator: $('#pvCreator').value.trim(),
+        year: $('#pvYear').value.trim(),
+        code: $('#pvCode').value.trim(),
+        cover: data.cover || null,
+        addedAt: Date.now()
+      };
+      items.push(finalItem);
+      persist();
+      render();
+      stampAt(ev.clientX, ev.clientY);
+      setTimeout(()=>{ closeAddModal(); toast('Ajouté au catalogue.'); }, 480);
+    });
+    $('#cancelPreviewBtn').addEventListener('click', ()=>{
+      area.innerHTML = '';
+      pendingResult = null;
+    });
+  }
+
+  function stampAt(x,y){
+    const s = document.createElement('div');
+    s.className = 'stamp';
+    s.style.left = x+'px';
+    s.style.top = y+'px';
+    s.innerHTML = `<span>Ajouté<br>${new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})}</span>`;
+    document.body.appendChild(s);
+    setTimeout(()=> s.remove(), 900);
+  }
+
+  // ---------- detail / edit ----------
+  function openDetail(id){
+    const it = items.find(i=>i.id===id);
+    if(!it) return;
+    editingId = id;
+    $('#detailTitle').textContent = it.title;
+    $('#detailCreator').textContent = it.creator || '';
+    $('#editTitle').value = it.title || '';
+    $('#editCreator').value = it.creator || '';
+    $('#editYear').value = it.year || '';
+    $('#editCode').value = it.code || '';
+    $('#detailOverlay').classList.add('show');
+  }
+  $('#closeDetail').addEventListener('click', ()=> $('#detailOverlay').classList.remove('show'));
+  $('#saveEditBtn').addEventListener('click', ()=>{
+    const it = items.find(i=>i.id===editingId);
+    if(!it) return;
+    it.title = $('#editTitle').value.trim() || 'Sans titre';
+    it.creator = $('#editCreator').value.trim();
+    it.year = $('#editYear').value.trim();
+    it.code = $('#editCode').value.trim();
+    persist();
+    render();
+    $('#detailOverlay').classList.remove('show');
+    toast('Modifications enregistrées.');
+  });
+  $('#deleteBtn').addEventListener('click', ()=>{
+    items = items.filter(i=>i.id!==editingId);
+    persist();
+    render();
+    $('#detailOverlay').classList.remove('show');
+    toast('Article supprimé.');
+  });
+
+  // ---------- info modal ----------
+  $('#infoBtn').addEventListener('click', ()=> $('#infoOverlay').classList.add('show'));
+  $('#closeInfo').addEventListener('click', ()=> $('#infoOverlay').classList.remove('show'));
+  $('#closeInfo2').addEventListener('click', ()=> $('#infoOverlay').classList.remove('show'));
+
+  // close overlays on backdrop click
+  [$('#addOverlay'), $('#detailOverlay'), $('#infoOverlay')].forEach(ov=>{
+    ov.addEventListener('click', (e)=>{ if(e.target===ov){ ov.classList.remove('show'); if(ov.id==='addOverlay') stopScanner(); } });
+  });
+
+  if(!window.isSecureContext){ $('#insecureBanner').classList.add('show'); }
+
+  // ---------- fix: frozen "blue screen" when returning to the app ----------
+  // iOS suspends the camera video stream when the PWA is backgrounded. On
+  // return, WebKit sometimes shows a stuck frame instead of properly
+  // resuming — this closes the camera/modal the moment the app is hidden,
+  // so there's nothing stale to resume when it comes back.
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){
+      stopScanner();
+      $('#addOverlay').classList.remove('show');
+    }
+  });
+
+  // If iOS restores the page from its back-forward cache (common for
+  // home-screen web apps) rather than reloading it fresh, force a real
+  // reload so the app always starts from a clean, working state.
+  window.addEventListener('pageshow', (e)=>{
+    if(e.persisted){
+      window.location.reload();
+    }
+  });
+
+  loadCollection();
+})();
+</script>
+</body>
+</html>
