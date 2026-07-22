@@ -374,30 +374,34 @@
     cd: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg>'
   };
 
-  // ---------- storage ----------
-  // Uses window.storage when running inside a Claude artifact preview,
-  // and falls back to localStorage for a normally hosted page (e.g. GitHub Pages).
+  // ---------- storage (JSONBin.io — syncs across all your devices) ----------
+  // 1) Create a free account at https://jsonbin.io
+  // 2) Create a bin with content: {"items": []}
+  // 3) Paste your Bin ID and X-Master-Key below
+  const BIN_ID = '6a5fd954f5f4af5e29ae28bc';
+  const API_KEY = '$2a$10$6pwhlZWpSYZz/kGweRLFSe6w8l0ubCbtBGug8dW3LnCgufCqwCJGq';
+  const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
   async function loadCollection(){
     try{
-      if(window.storage){
-        const res = await window.storage.get(STORAGE_KEY, false);
-        items = res && res.value ? JSON.parse(res.value) : [];
-      }else{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        items = raw ? JSON.parse(raw) : [];
-      }
+      const res = await fetch(API_URL + '/latest', {
+        headers: { 'X-Master-Key': API_KEY }
+      });
+      const data = await res.json();
+      items = (data.record && Array.isArray(data.record.items)) ? data.record.items : [];
     }catch(e){
       items = [];
+      toast('Impossible de charger la collection — vérifiez votre connexion.');
     }
     render();
   }
   async function persist(){
     try{
-      if(window.storage){
-        await window.storage.set(STORAGE_KEY, JSON.stringify(items), false);
-      }else{
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-      }
+      await fetch(API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+        body: JSON.stringify({ items })
+      });
     }catch(e){
       toast('Erreur de sauvegarde — réessayez.');
     }
